@@ -1,5 +1,6 @@
 import "./App.css";
 
+import { v4 as uuidv4 } from "uuid";
 import { useState } from "react";
 
 const Task = ({ title }) => {
@@ -17,7 +18,7 @@ const App = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       setTaskList((prevTaskList) => {
-        return [{ id: crypto.randomUUID(), title: text }, ...prevTaskList];
+        return [{ id: uuidv4(), title: text }, ...prevTaskList];
       });
       setText("");
     }
