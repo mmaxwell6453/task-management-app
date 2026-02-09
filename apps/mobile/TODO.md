@@ -1,0 +1,29 @@
+# TODO:
+
+- [x] Create initial project
+- [] Main list component:
+  - [] Add a unordered list component.
+  - [] Make it feed from an useState array variable.
+  - [] Add an input text field that adds to the useState array variable when enter is pressed.
+- [] Update item functionality for main list component:
+  - [] Add an edit button on each item.
+  - [] When edit button is clicked:
+    - [] Allow user to change title of task.
+    - [] Update edit button to show save text instead.
+  - [] When save button is clicked:
+    - [] Update state of task item.
+    - [] Change save text to edit text on button.
+- [] Add and edit button on top right of web page:
+  - [] When edit button is clicked:
+    - [] Change edit button text per list item to delete.
+    - [] When delete button on an item is clicked:
+      - [] Update state of list to remove item from list.
+- [] When edit button is clicked, add move text at the front of the list item:
+  - [] Allow the user to move the list item to a different position when the move text is clicked and dragged.
+- [] Add a check box to each item in the list state:
+  - [] When the check box is clicked, strike through the text.
+  - [] Make sure the check box gets checked.
+- [] Add another state array for list items that are checked:
+  - [] When checked, move list item from main list array state to checked array state.
+  - [] Add another list component that displays the checked list items.
+  - [] Add a `Completed` title on top of the checked list items
