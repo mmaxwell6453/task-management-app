@@ -1,10 +1,10 @@
 # TODO:
 
 - [x] Create initial project
-- [] Main list component:
-  - [] Add a unordered list component.
-  - [] Make it feed from an useState array variable.
-  - [] Add an input text field that adds to the useState array variable when enter is pressed.
+- [x] Main list component:
+  - [x] Add a list component.
+  - [x] Make it feed from an state list variable.
+  - [x] Add an input text field that adds to the state list variable when enter is pressed.
 - [] Update item functionality for main list component:
   - [] Add an edit button on each item.
   - [] When edit button is clicked:
