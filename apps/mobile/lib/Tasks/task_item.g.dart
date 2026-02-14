@@ -6,7 +6,7 @@ part of 'task_item.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class TodoItemAdapter extends TypeAdapter<TaskItem> {
+class TaskItemAdapter extends TypeAdapter<TaskItem> {
   @override
   final int typeId = 0;
 
@@ -16,7 +16,7 @@ class TodoItemAdapter extends TypeAdapter<TaskItem> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return TaskItem(title: fields[0] as String, isDone: fields[1] as bool);
+    return TaskItem(title: fields[0] as String, isCompleted: fields[1] as bool);
   }
 
   @override
@@ -26,7 +26,7 @@ class TodoItemAdapter extends TypeAdapter<TaskItem> {
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
-      ..write(obj.isDone);
+      ..write(obj.isCompleted);
   }
 
   @override
@@ -35,7 +35,7 @@ class TodoItemAdapter extends TypeAdapter<TaskItem> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TodoItemAdapter &&
+      other is TaskItemAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

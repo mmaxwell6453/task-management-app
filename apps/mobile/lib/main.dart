@@ -8,10 +8,10 @@ void main() async {
 
   // Initialize Hive for Flutter
   await Hive.initFlutter();
-  Hive.registerAdapter(TodoItemAdapter());
+  Hive.registerAdapter(TaskItemAdapter());
 
   // Open a box (like a table)
-  await Hive.openBox<TaskItem>('taskBox');
+  await Hive.openBox<TaskItem>('todoBox');
 
   runApp(const App());
 }
@@ -27,23 +27,10 @@ class _AppState extends State<App> {
   final TextEditingController controller = TextEditingController();
   final List<String> tasks = [];
 
-  late Box<TaskItem>? box;
-
-  @override
-  void initState() {
-    super.initState();
-    openBox();
-  }
-
-  Future<void> openBox() async {
-    box = await Hive.openBox<TaskItem>('todoBox'); // open here
-    setState(() {}); // trigger rebuild
-  }
+  final box = Hive.box<TaskItem>('todoBox');
 
   @override
   Widget build(BuildContext context) {
-    if (box == null) return const CircularProgressIndicator();
-
     return MaterialApp(
       theme: ThemeData.dark(),
       home: Scaffold(
@@ -54,54 +41,25 @@ class _AppState extends State<App> {
             // Task list takes remaining space
             Expanded(
               child: ListView(
-                children: box!.values
+                children: box.values
                     .map(
-                      (item) => ListTile(
-                        title: Text(item.title),
-                        trailing: Checkbox(
-                          value: item.isDone,
-                          onChanged: (value) {
-                            item.isDone = value!;
-                            item.save();
-                            setState(() {});
+                      (task) => ListTile(
+                        title: Text(task.title),
+                        leading: Checkbox(
+                          value: task.isCompleted,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              task.isCompleted = value!;
+                            });
+
+                            task.save(); // 🔥 THIS writes the change to Hive
                           },
                         ),
                       ),
                     )
                     .toList(),
               ),
-              // ValueListenableBuilder(
-              //   valueListenable: box.listenable(),
-              //   builder: (context, Box<TaskItem> box, _) {
-              //     return ListView.builder(
-              //       itemCount: box.length,
-              //       itemBuilder: (context, index) {
-              //         final task = box.getAt(index)!;
-
-              //         return CheckboxListTile(
-              //           title: Text(task.title),
-              //           value: task.isDone,
-              //           onChanged: (value) {
-              //             task.isDone = value ?? false;
-              //             task.save(); // persist change
-              //           },
-              //         );
-              //       },
-              //     );
-              //   },
-              // ),
-              // ListView.builder(
-              //   padding: EdgeInsets.all(8),
-              //   itemCount: tasks.length,
-              //   itemBuilder: (context, index) {
-              //     return Card(
-              //       margin: EdgeInsets.symmetric(vertical: 4),
-              //       child: TaskItem(task: tasks[index]),
-              //     );
-              //   },
-              // ),
             ),
-
             // Input field at the bottom
             SafeArea(
               child: Padding(
@@ -119,7 +77,8 @@ class _AppState extends State<App> {
                         onSubmitted: (value) {
                           if (value.isEmpty) return;
                           setState(() {
-                            box?.add(TaskItem(title: value));
+                            print('it Worked!');
+                            box.add(TaskItem(title: value));
                             controller.clear();
                           });
                         },
