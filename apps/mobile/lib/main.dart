@@ -26,6 +26,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   final TextEditingController controller = TextEditingController();
   final List<String> tasks = [];
+  bool isEditing = false;
 
   final box = Hive.box<TaskItem>('todoBox');
 
@@ -34,33 +35,90 @@ class _AppState extends State<App> {
     return MaterialApp(
       theme: ThemeData.dark(),
       home: Scaffold(
-        appBar: AppBar(title: Text('TManager')),
+        appBar: AppBar(title: Text('TManager'), centerTitle: true),
         resizeToAvoidBottomInset: true, // ensures body resizes
         body: Column(
           children: [
-            // Task list takes remaining space
+            Row(
+              children: [
+                Spacer(),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      isEditing = !isEditing;
+                    });
+                  },
+                  child: Text(
+                    !isEditing ? 'Edit' : 'Done',
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+              ],
+            ),
             Expanded(
-              child: ListView(
-                children: box.values
-                    .map(
-                      (task) => ListTile(
-                        title: Text(task.title),
-                        leading: Checkbox(
-                          value: task.isCompleted,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              task.isCompleted = value!;
-                            });
+              child: ReorderableListView.builder(
+                itemCount: box.length,
+                onReorder: (oldIndex, newIndex) async {
+                  if (newIndex > oldIndex) {
+                    newIndex -= 1;
+                  }
 
-                            task.save(); // 🔥 THIS writes the change to Hive
-                          },
-                        ),
+                  final taskList = box.values.toList();
+                  final item = taskList.removeAt(oldIndex);
+                  taskList.insert(newIndex, item);
+
+                  // Clear and rewrite Hive box in new order
+                  await box.clear();
+                  await box.addAll(taskList);
+
+                  setState(() {});
+                },
+                itemBuilder: (context, index) {
+                  final task = box.getAt(index);
+
+                  return Card(
+                    key: ValueKey(task!.key), // VERY IMPORTANT
+                    elevation: 3,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      leading: isEditing
+                          ? ReorderableDragStartListener(
+                              index: index,
+                              child: const Icon(Icons.drag_indicator),
+                            )
+                          : Checkbox(
+                              value: task.isCompleted,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  task.isCompleted = value!;
+                                });
+                                task.save();
+                              },
+                            ),
+
+                      title: Text(
+                        task.title,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    )
-                    .toList(),
+                      trailing: isEditing
+                          ? IconButton(
+                              icon: const Icon(Icons.delete),
+                              color: Colors.red,
+                              onPressed: () {
+                                task.delete();
+                                setState(() {});
+                              },
+                            )
+                          : null,
+                    ),
+                  );
+                },
               ),
             ),
-            // Input field at the bottom
             SafeArea(
               child: Padding(
                 padding: EdgeInsets.all(8),
@@ -77,7 +135,6 @@ class _AppState extends State<App> {
                         onSubmitted: (value) {
                           if (value.isEmpty) return;
                           setState(() {
-                            print('it Worked!');
                             box.add(TaskItem(title: value));
                             controller.clear();
                           });
