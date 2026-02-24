@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
-import 'package:mobile/Tasks/task_item.dart';
+import 'package:mobile/TaskListCollections/task_directory.dart';
 
 class TaskDeleteBtn extends StatelessWidget {
   final TaskItem task;
-  final Function(TaskItem) onDeletePressed;
+  final int index;
+  final void Function(int index) deleteTask;
   const TaskDeleteBtn({
     super.key,
     required this.task,
-    required this.onDeletePressed,
+    required this.index,
+    required this.deleteTask,
   });
 
   @override
@@ -42,7 +44,7 @@ class TaskDeleteBtn extends StatelessWidget {
         );
 
         if (confirmed == true) {
-          onDeletePressed(task);
+          deleteTask(index);
         }
       },
     );

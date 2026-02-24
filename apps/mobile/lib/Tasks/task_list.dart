@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobile/Tasks/task_delete_btn.dart';
 
-import 'package:mobile/Tasks/task_item.dart';
+import 'package:mobile/TaskListCollections/task_directory.dart';
 
 class TaskList extends StatefulWidget {
   final bool isEditing;
+
   const TaskList({super.key, required this.isEditing});
 
   @override
@@ -13,10 +14,23 @@ class TaskList extends StatefulWidget {
 }
 
 class _TaskListState extends State<TaskList> {
-  final box = Hive.box<TaskItem>('todoBox');
+  late Box<TaskDirectory> box;
+  late TaskDirectory directory;
 
-  void onDeletePressed(TaskItem task) {
-    task.delete();
+  @override
+  void initState() {
+    super.initState();
+
+    box = Hive.box<TaskDirectory>('taskDirectories');
+
+    directory = box.getAt(0)!;
+  }
+
+  void deleteTask(int taskIndex) {
+    directory.taskList.removeAt(taskIndex);
+
+    directory.save();
+
     setState(() {});
   }
 
@@ -24,33 +38,39 @@ class _TaskListState extends State<TaskList> {
   Widget build(BuildContext context) {
     return Expanded(
       child: ReorderableListView.builder(
-        itemCount: box.length,
+        itemCount: directory.taskList.length,
+
         onReorder: (oldIndex, newIndex) async {
           if (newIndex > oldIndex) {
-            newIndex -= 1;
+            newIndex--;
           }
 
-          final taskList = box.values.toList();
-          final item = taskList.removeAt(oldIndex);
-          taskList.insert(newIndex, item);
+          final item = directory.taskList.removeAt(oldIndex);
 
-          // Clear and rewrite Hive box in new order
-          await box.clear();
-          await box.addAll(taskList);
+          directory.taskList.insert(newIndex, item);
+
+          await directory.save();
 
           setState(() {});
         },
+
         itemBuilder: (context, index) {
-          final task = box.getAt(index);
+          final task = directory.taskList[index];
+
           return Card(
-            key: ValueKey(task!.key), // VERY IMPORTANT
+            key: ValueKey(index),
+
             elevation: 3,
+
             margin: const EdgeInsets.symmetric(vertical: 8),
+
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
+
             child: ListTile(
               contentPadding: const EdgeInsets.all(16),
+
               leading: widget.isEditing
                   ? ReorderableDragStartListener(
                       index: index,
@@ -62,15 +82,22 @@ class _TaskListState extends State<TaskList> {
                         setState(() {
                           task.isCompleted = value!;
                         });
-                        task.save();
+
+                        directory.save();
                       },
                     ),
+
               title: Text(
                 task.title,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
+
               trailing: widget.isEditing
-                  ? TaskDeleteBtn(task: task, onDeletePressed: onDeletePressed)
+                  ? TaskDeleteBtn(
+                      task: task,
+                      index: index,
+                      deleteTask: deleteTask,
+                    )
                   : null,
             ),
           );

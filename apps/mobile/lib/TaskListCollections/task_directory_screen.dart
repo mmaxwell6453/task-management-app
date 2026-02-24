@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import 'package:mobile/TaskListCollections/task_list_collection_box.dart';
+import 'package:mobile/TaskListCollections/task_directory.dart';
 
-class TaskListCollectionScreen extends StatefulWidget {
-  const TaskListCollectionScreen({super.key});
+class TaskDirectoryScreen extends StatefulWidget {
+  const TaskDirectoryScreen({super.key});
 
   @override
-  State<TaskListCollectionScreen> createState() =>
-      _TaskListCollectionScreenState();
+  State<TaskDirectoryScreen> createState() => _TaskDirectoryScreenState();
 }
 
-class _TaskListCollectionScreenState extends State<TaskListCollectionScreen> {
+class _TaskDirectoryScreenState extends State<TaskDirectoryScreen> {
   final TextEditingController controller = TextEditingController();
   final List<String> tasks = [];
   bool isEditing = false;
 
-  final box = Hive.box<TaskListCollectionBox>('TaskCollectionBox');
+  final box = Hive.box<TaskDirectory>('taskDirectories');
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +37,7 @@ class _TaskListCollectionScreenState extends State<TaskListCollectionScreen> {
             ),
           ],
         ),
+        Spacer(),
         // TaskList(isEditing: isEditing),
         SafeArea(
           child: Padding(
@@ -48,7 +48,7 @@ class _TaskListCollectionScreenState extends State<TaskListCollectionScreen> {
                   child: TextField(
                     controller: controller,
                     decoration: InputDecoration(
-                      hintText: "Add a Task...",
+                      hintText: "Add a New List...",
                       border: OutlineInputBorder(),
                     ),
                     textInputAction: TextInputAction.done,
