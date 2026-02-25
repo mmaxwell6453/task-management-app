@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import 'package:mobile/TaskListCollections/task_directory.dart';
+import 'package:mobile/TaskDirectories/task_directory.dart';
 import 'package:mobile/Tasks/task_list.dart';
 
 class SelectedTaskList extends StatefulWidget {

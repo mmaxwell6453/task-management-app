@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:mobile/TaskListCollections/task_directory.dart';
+import 'package:mobile/TaskDirectories/task_directory.dart';
 
 class TaskDeleteBtn extends StatelessWidget {
   final TaskItem task;

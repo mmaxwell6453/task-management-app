@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import 'package:mobile/TaskListCollections/task_directory.dart';
+import 'package:mobile/TaskDirectories/task_directory.dart';
 import 'package:mobile/Tasks/selected_task_list.dart';
-import 'package:mobile/TaskListCollections/task_directory_screen.dart';
+import 'package:mobile/TaskDirectories/task_directory_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +26,12 @@ class App extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData.dark(),
       home: Scaffold(
-        appBar: AppBar(title: Text('TManager'), centerTitle: true),
+        appBar: AppBar(
+          title: Column(
+            children: [Text('**Advertisements**'), Text('TManager')],
+          ),
+          centerTitle: true,
+        ),
         resizeToAvoidBottomInset: true,
         body: const TaskDirectoryScreen(),
       ),
