@@ -8,12 +8,18 @@ import 'package:mobile/TaskDirectories/task_directory_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive for Flutter
   await Hive.initFlutter();
-  Hive.registerAdapter(TaskDirectoryAdapter());
 
-  // Open a box (like a table)
-  await Hive.openBox<TaskDirectory>('taskDirectories');
+  Hive.registerAdapter(TaskDirectoryAdapter());
+  Hive.registerAdapter(TaskListAdapter());
+  Hive.registerAdapter(TaskItemAdapter());
+
+  final box = await Hive.openBox<TaskDirectory>('taskDirectories');
+
+  // ✅ Create root directory if it doesn't exist
+  if (!box.containsKey("root")) {
+    await box.put("root", TaskDirectory(listDir: "home"));
+  }
 
   runApp(const App());
 }

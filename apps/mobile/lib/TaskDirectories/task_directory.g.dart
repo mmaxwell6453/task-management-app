@@ -18,21 +18,18 @@ class TaskDirectoryAdapter extends TypeAdapter<TaskDirectory> {
     };
     return TaskDirectory(
       listDir: fields[0] as String,
-      listTitle: fields[1] as String,
-      taskList: (fields[2] as List).cast<TaskItem>(),
+      lists: (fields[1] as List?)?.cast<TaskList>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskDirectory obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(2)
       ..writeByte(0)
       ..write(obj.listDir)
       ..writeByte(1)
-      ..write(obj.listTitle)
-      ..writeByte(2)
-      ..write(obj.taskList);
+      ..write(obj.lists);
   }
 
   @override
@@ -46,9 +43,46 @@ class TaskDirectoryAdapter extends TypeAdapter<TaskDirectory> {
           typeId == other.typeId;
 }
 
-class TaskItemAdapter extends TypeAdapter<TaskItem> {
+class TaskListAdapter extends TypeAdapter<TaskList> {
   @override
   final int typeId = 1;
+
+  @override
+  TaskList read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return TaskList(
+      listTitle: fields[0] as String,
+      taskList: (fields[1] as List?)?.cast<TaskItem>(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, TaskList obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.listTitle)
+      ..writeByte(1)
+      ..write(obj.taskList);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TaskListAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class TaskItemAdapter extends TypeAdapter<TaskItem> {
+  @override
+  final int typeId = 2;
 
   @override
   TaskItem read(BinaryReader reader) {

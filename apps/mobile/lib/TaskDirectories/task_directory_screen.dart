@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:mobile/TaskDirectories/task_directory.dart';
+import 'package:mobile/Tasks/task_list_view.dart';
 
 class TaskDirectoryScreen extends StatefulWidget {
   const TaskDirectoryScreen({super.key});
@@ -12,10 +13,15 @@ class TaskDirectoryScreen extends StatefulWidget {
 
 class _TaskDirectoryScreenState extends State<TaskDirectoryScreen> {
   final TextEditingController controller = TextEditingController();
-  final List<String> tasks = [];
   bool isEditing = false;
 
-  final box = Hive.box<TaskDirectory>('taskDirectories');
+  late Box<TaskDirectory> box;
+
+  @override
+  void initState() {
+    super.initState();
+    box = Hive.box<TaskDirectory>('taskDirectories');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +44,12 @@ class _TaskDirectoryScreenState extends State<TaskDirectoryScreen> {
             ),
           ],
         ),
-        Spacer(),
-        // TaskList(isEditing: isEditing),
+        TaskListView(
+          type: "ListBtn",
+          isEditing: isEditing,
+          box: box,
+          directory: "root",
+        ),
         SafeArea(
           child: Padding(
             padding: EdgeInsets.all(8),
@@ -55,42 +65,18 @@ class _TaskDirectoryScreenState extends State<TaskDirectoryScreen> {
                             title: const Text('Add a List'),
                             content: TextField(
                               controller: controller,
-
                               decoration: const InputDecoration(
                                 hintText: "Enter a List title...",
                                 border: OutlineInputBorder(),
                               ),
-
-                              textInputAction: TextInputAction.done,
-
-                              onSubmitted: (value) {
-                                if (value.isEmpty) return;
-
-                                setState(() {
-                                  // **TODO: Add a new list here**
-                                  // directory.taskList.add(TaskItem(title: value));
-
-                                  // directory.save();
-
-                                  controller.clear();
-                                });
-                              },
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () {
-                                  Navigator.pop(
-                                    context,
-                                    false,
-                                  ); // User canceled
-                                },
+                                onPressed: () => Navigator.pop(context, false),
                                 child: const Text('Cancel'),
                               ),
                               TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context, true);
-                                  controller.clear();
-                                },
+                                onPressed: () => Navigator.pop(context, true),
                                 child: const Text('Add'),
                               ),
                             ],
@@ -98,8 +84,19 @@ class _TaskDirectoryScreenState extends State<TaskDirectoryScreen> {
                         },
                       );
 
-                      if (confirmed == true) {
-                        // deleteTask(index);
+                      if (!mounted) return;
+
+                      if (confirmed == true && controller.text.isNotEmpty) {
+                        final directory = box.get("root")!;
+
+                        directory.lists.add(
+                          TaskList(listTitle: controller.text),
+                        );
+
+                        await directory.save();
+
+                        controller.clear();
+                        setState(() {});
                       }
                     },
                     child: Text('+ List'),
