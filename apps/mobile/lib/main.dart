@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:mobile/TaskDirectories/task_directory.dart';
-import 'package:mobile/Tasks/selected_task_list.dart';
 import 'package:mobile/TaskDirectories/task_directory_screen.dart';
 
 void main() async {
@@ -16,9 +15,8 @@ void main() async {
 
   final box = await Hive.openBox<TaskDirectory>('taskDirectories');
 
-  // ✅ Create root directory if it doesn't exist
   if (!box.containsKey("root")) {
-    await box.put("root", TaskDirectory(listDir: "home"));
+    await box.put("root", TaskDirectory(listDir: "root"));
   }
 
   runApp(const App());
@@ -31,16 +29,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark(),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Column(
-            children: [Text('**Advertisements**'), Text('TManager')],
-          ),
-          centerTitle: true,
-        ),
-        resizeToAvoidBottomInset: true,
-        body: const TaskDirectoryScreen(),
-      ),
+      routes: {'/': (context) => TaskDirectoryScreen()},
     );
   }
 }

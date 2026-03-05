@@ -8,7 +8,7 @@ class TaskDirectory extends HiveObject {
   String listDir;
 
   @HiveField(1)
-  List<TaskList> lists;
+  List<TaskList> lists = [];
 
   TaskDirectory({this.listDir = "root", List<TaskList>? lists})
     : lists = lists ?? [];
@@ -17,13 +17,19 @@ class TaskDirectory extends HiveObject {
 @HiveType(typeId: 1)
 class TaskList extends HiveObject {
   @HiveField(0)
-  String listTitle;
+  String id;
 
   @HiveField(1)
+  String listTitle;
+
+  @HiveField(2)
   List<TaskItem> taskList;
 
-  TaskList({required this.listTitle, List<TaskItem>? taskList})
-    : taskList = taskList ?? [];
+  TaskList({
+    required this.id,
+    required this.listTitle,
+    List<TaskItem>? taskList,
+  }) : taskList = taskList ?? [];
 }
 
 @HiveType(typeId: 2)

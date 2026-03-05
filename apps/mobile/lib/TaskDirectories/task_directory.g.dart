@@ -54,18 +54,21 @@ class TaskListAdapter extends TypeAdapter<TaskList> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TaskList(
-      listTitle: fields[0] as String,
-      taskList: (fields[1] as List?)?.cast<TaskItem>(),
+      id: fields[0] as String,
+      listTitle: fields[1] as String,
+      taskList: (fields[2] as List?)?.cast<TaskItem>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskList obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.listTitle)
+      ..write(obj.id)
       ..writeByte(1)
+      ..write(obj.listTitle)
+      ..writeByte(2)
       ..write(obj.taskList);
   }
 

@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:mobile/TaskDirectories/task_directory.dart';
 import 'package:mobile/Tasks/task_list_view.dart';
+import 'package:uuid/uuid.dart';
 
 class TaskDirectoryScreen extends StatefulWidget {
   const TaskDirectoryScreen({super.key});
@@ -14,6 +15,7 @@ class TaskDirectoryScreen extends StatefulWidget {
 class _TaskDirectoryScreenState extends State<TaskDirectoryScreen> {
   final TextEditingController controller = TextEditingController();
   bool isEditing = false;
+  final uuid = const Uuid();
 
   late Box<TaskDirectory> box;
 
@@ -25,94 +27,100 @@ class _TaskDirectoryScreenState extends State<TaskDirectoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            TextButton(onPressed: () {}, child: Text('Settings')),
-            Spacer(),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  isEditing = !isEditing;
-                });
-              },
-              child: Text(
-                !isEditing ? 'Edit' : 'Done',
-                textAlign: TextAlign.right,
+    return Scaffold(
+      appBar: AppBar(title: Text('TManager'), centerTitle: true),
+      resizeToAvoidBottomInset: true,
+      body: Column(
+        children: [
+          Text('**Advertisements**'),
+          Row(
+            children: [
+              TextButton(onPressed: () {}, child: Text('Settings')),
+              Spacer(),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    isEditing = !isEditing;
+                  });
+                },
+                child: Text(
+                  !isEditing ? 'Edit' : 'Done',
+                  textAlign: TextAlign.right,
+                ),
               ),
-            ),
-          ],
-        ),
-        TaskListView(
-          type: "ListBtn",
-          isEditing: isEditing,
-          box: box,
-          directory: "root",
-        ),
-        SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () async {
-                      final confirmed = await showDialog<bool>(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text('Add a List'),
-                            content: TextField(
-                              controller: controller,
-                              decoration: const InputDecoration(
-                                hintText: "Enter a List title...",
-                                border: OutlineInputBorder(),
+            ],
+          ),
+          TaskListView(
+            type: "ListBtn",
+            isEditing: isEditing,
+            box: box,
+            directory: "root",
+          ),
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.all(8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Add a List'),
+                              content: TextField(
+                                controller: controller,
+                                decoration: const InputDecoration(
+                                  hintText: "Enter a List title...",
+                                  border: OutlineInputBorder(),
+                                ),
                               ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Add'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-
-                      if (!mounted) return;
-
-                      if (confirmed == true && controller.text.isNotEmpty) {
-                        final directory = box.get("root")!;
-
-                        directory.lists.add(
-                          TaskList(listTitle: controller.text),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Add'),
+                                ),
+                              ],
+                            );
+                          },
                         );
 
-                        await directory.save();
+                        if (!mounted) return;
 
-                        controller.clear();
-                        setState(() {});
-                      }
-                    },
-                    child: Text('+ List'),
+                        if (confirmed == true && controller.text.isNotEmpty) {
+                          final directory = box.get("root")!;
+
+                          directory.lists.add(
+                            TaskList(id: uuid.v4(), listTitle: controller.text),
+                          );
+
+                          await directory.save();
+
+                          controller.clear();
+                          setState(() {});
+                        }
+                      },
+                      child: Text('+ List'),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: TextButton(
-                    onPressed: () {},
-                    child: Text('+ List Directory'),
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {},
+                      child: Text('+ List Directory'),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mobile/Tasks/task_delete_btn.dart';
+// import 'package:mobile/Tasks/task_delete_btn.dart';
 
 import 'package:mobile/TaskDirectories/task_directory.dart';
+import 'package:mobile/Tasks/selected_task_list.dart';
 
 class TaskListView extends StatefulWidget {
   final String type;
@@ -70,58 +71,57 @@ class _TaskListViewState extends State<TaskListView> {
 
             elevation: 3,
 
-            margin: const EdgeInsets.symmetric(vertical: 8),
+            margin: const EdgeInsets.symmetric(vertical: 2),
 
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
 
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(16),
-
-              leading: widget.isEditing
-                  ? ReorderableDragStartListener(
-                      index: index,
-                      child: const Icon(Icons.drag_indicator),
-                    )
-                  : null,
-
-              // Checkbox(
-              //     value: task.isCompleted,
-              //     onChanged: (bool? value) {
-              //       setState(() {
-              //         task.isCompleted = value!;
-              //       });
-
-              //       directory.save();
-              //     },
-              //   ),
-              title: Text(
-                taskList.listTitle,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+            child: Container(
+              margin: EdgeInsets.fromLTRB(5, 0, 5, 0),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black12)],
               ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.fromLTRB(10, 1, 10, 1),
 
-              trailing: widget.type == "ListBtn" && !widget.isEditing
-                  ? Icon(Icons.arrow_forward_rounded)
-                  : widget.type == "ListBtn" && widget.isEditing
-                  ? IconButton(
-                      onPressed: () {
-                        print('Options pressed!');
+                leading: widget.isEditing
+                    ? ReorderableDragStartListener(
+                        index: index,
+                        child: const Icon(Icons.drag_indicator),
+                      )
+                    : null,
+                title: Text(
+                  taskList.listTitle,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+
+                trailing: widget.type == "ListBtn" && !widget.isEditing
+                    ? Icon(Icons.arrow_forward_rounded)
+                    : widget.type == "ListBtn" && widget.isEditing
+                    ? IconButton(
+                        onPressed: () {
+                          print('Options pressed!');
+                        },
+                        icon: Icon(Icons.more_horiz),
+                      )
+                    : null,
+                onTap: widget.isEditing
+                    ? null
+                    : () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SelectedTaskList(
+                              box: box,
+                              listTitle: taskList.listTitle,
+                            ),
+                          ),
+                        );
                       },
-                      icon: Icon(Icons.more_horiz),
-                    )
-                  : null,
-              // trailing: widget.isEditing
-              //     ? null
-              //     // TaskDeleteBtn(
-              //     //     task: task,
-              //     //     index: index,
-              //     //     deleteTask: deleteTask,
-              //     //   )
-              //     : null,
-              onTap: () {
-                print('List tile pressed!');
-              },
+              ),
             ),
           );
         },
