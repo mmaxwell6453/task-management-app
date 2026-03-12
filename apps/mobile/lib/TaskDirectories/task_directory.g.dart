@@ -93,16 +93,22 @@ class TaskItemAdapter extends TypeAdapter<TaskItem> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return TaskItem(title: fields[0] as String, isCompleted: fields[1] as bool);
+    return TaskItem(
+      id: fields[0] as String,
+      title: fields[1] as String,
+      isCompleted: fields[2] as bool,
+    );
   }
 
   @override
   void write(BinaryWriter writer, TaskItem obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.title)
+      ..write(obj.id)
       ..writeByte(1)
+      ..write(obj.title)
+      ..writeByte(2)
       ..write(obj.isCompleted);
   }
 

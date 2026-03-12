@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:mobile/TaskDirectories/task_directory.dart';
 // import 'package:mobile/Tasks/task_list.dart';
 
 class SelectedTaskList extends StatefulWidget {
   final Box<TaskDirectory> box;
-  final String listTitle;
+  final String directoryKey;
+  final String listId;
 
   const SelectedTaskList({
     super.key,
     required this.box,
-    required this.listTitle,
+    required this.directoryKey,
+    required this.listId,
   });
 
   @override
@@ -22,14 +25,18 @@ class _SelectedTaskListState extends State<SelectedTaskList> {
   final TextEditingController controller = TextEditingController();
   bool isEditing = false;
 
-  late Box<TaskDirectory> box;
   late TaskDirectory directory;
+  late TaskList taskList;
 
   @override
   void initState() {
     super.initState();
-    box = widget.box;
-    directory = box.get(widget.listTitle)!;
+
+    directory = widget.box.get(widget.directoryKey)!;
+
+    taskList = directory.lists.firstWhere(
+          (list) => list.id == widget.listId,
+    );
   }
 
   @override
@@ -79,27 +86,27 @@ class _SelectedTaskListState extends State<SelectedTaskList> {
             child: directory.lists.isEmpty
                 ? const Center(child: Text('No tasks yet...'))
                 : ReorderableListView.builder(
-                    itemCount: directory.lists.length,
+                    itemCount: taskList.taskList.length,
 
                     onReorder: (oldIndex, newIndex) async {
-                      // if (newIndex > oldIndex) {
-                      //   newIndex--;
-                      // }
+                      if (newIndex > oldIndex) {
+                        newIndex--;
+                      }
 
-                      // final item = directory.taskList.removeAt(oldIndex);
+                      final item = taskList.taskList.removeAt(oldIndex);
 
-                      // directory.taskList.insert(newIndex, item);
+                      taskList.taskList.insert(newIndex, item);
 
-                      // await directory.save();
+                      await directory.save();
 
-                      // setState(() {});
+                      setState(() {});
                     },
 
                     itemBuilder: (context, index) {
-                      final taskList = directory.lists[index];
+                      final task = taskList.taskList[index];
 
                       return Card(
-                        key: ValueKey(index),
+                        key: ValueKey(task.id),
 
                         elevation: 3,
 
@@ -135,14 +142,25 @@ class _SelectedTaskListState extends State<SelectedTaskList> {
                                   )
                                 : null,
                             title: Text(
-                              taskList.listTitle,
+                              task.title,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
 
                             trailing: isEditing
-                                ? Icon(Icons.delete, color: Colors.red)
+                                ? IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+
+                                setState(() {
+                                  taskList.taskList.removeAt(index);
+                                });
+
+                                await directory.save();
+
+                              },
+                            )
                                 : null,
                           ),
                         ),
@@ -167,16 +185,23 @@ class _SelectedTaskListState extends State<SelectedTaskList> {
 
                       textInputAction: TextInputAction.done,
 
-                      onSubmitted: (value) {
+                      onSubmitted: (value) async {
                         if (value.isEmpty) return;
 
                         setState(() {
-                          // directory.taskList.add(TaskItem(title: value));
 
-                          // directory.save();
+                          taskList.taskList.add(
+                            TaskItem(
+                              id: const Uuid().v4(),
+                              title: value,
+                            ),
+                          );
 
-                          controller.clear();
                         });
+
+                        await directory.save();
+
+                        controller.clear();
                       },
                     ),
                   ),

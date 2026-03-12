@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-// import 'package:mobile/Tasks/task_delete_btn.dart';
 
 import 'package:mobile/TaskDirectories/task_directory.dart';
 import 'package:mobile/Tasks/selected_task_list.dart';
@@ -10,6 +9,7 @@ class TaskListView extends StatefulWidget {
   final bool isEditing;
   final Box<TaskDirectory> box;
   final String directory;
+
 
   const TaskListView({
     super.key,
@@ -66,6 +66,7 @@ class _TaskListViewState extends State<TaskListView> {
         itemBuilder: (context, index) {
           final taskList = lists[index];
 
+
           return Card(
             key: ValueKey(index),
 
@@ -114,9 +115,10 @@ class _TaskListViewState extends State<TaskListView> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => SelectedTaskList(
+                            builder: (_) => SelectedTaskList(
                               box: box,
-                              listTitle: taskList.listTitle,
+                              directoryKey: directory.key,
+                              listId: taskList.id,
                             ),
                           ),
                         );

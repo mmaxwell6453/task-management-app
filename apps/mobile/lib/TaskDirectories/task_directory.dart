@@ -35,10 +35,17 @@ class TaskList extends HiveObject {
 @HiveType(typeId: 2)
 class TaskItem {
   @HiveField(0)
-  String title;
+  String id;
 
   @HiveField(1)
+  String title;
+
+  @HiveField(2)
   bool isCompleted;
 
-  TaskItem({required this.title, this.isCompleted = false});
+  TaskItem({
+    required this.id,
+    required this.title,
+    this.isCompleted = false,
+  });
 }
